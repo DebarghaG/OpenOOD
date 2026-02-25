@@ -4,5 +4,5 @@ postprocessor:
   postprocessor_args:
     nearest_k: 5
     seed: 0
-    batch_size_extract: 64
+    batch_size_extract: 256
   postprocessor_sweep: {}

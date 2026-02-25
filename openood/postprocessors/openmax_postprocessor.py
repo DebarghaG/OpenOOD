@@ -1,4 +1,7 @@
-import libmr
+try:
+    import libmr
+except ImportError:
+    libmr = None
 import numpy as np
 import scipy.spatial.distance as spd
 import torch

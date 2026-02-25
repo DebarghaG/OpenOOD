@@ -128,7 +128,7 @@ class FortePostprocessor(BasePostprocessor):
         # ViTMSN
         vitmsn_model = ViTMSNModel.from_pretrained(
             'facebook/vit-msn-base').to(self.device)
-        vitmsn_processor = AutoFeatureExtractor.from_pretrained(
+        vitmsn_processor = AutoImageProcessor.from_pretrained(
             'facebook/vit-msn-base')
         vitmsn_model.eval()
         self.forte_models['vitmsn'] = (vitmsn_model, vitmsn_processor)
@@ -178,14 +178,18 @@ class FortePostprocessor(BasePostprocessor):
                 batch_paths = image_paths[i:i + self.batch_size_extract]
                 images = [Image.open(p).convert('RGB') for p in batch_paths]
 
-                inputs = processor(
-                    images=images, return_tensors='pt', padding=True)
+                proc_kwargs = dict(images=images, return_tensors='pt')
+                if model_name == 'clip':
+                    proc_kwargs['padding'] = True
+                inputs = processor(**proc_kwargs)
                 inputs = {k: v.to(self.device) for k, v in inputs.items()
                           if isinstance(v, torch.Tensor)}
 
                 with torch.no_grad():
                     if model_name == 'clip':
-                        feat = model.get_image_features(**inputs)
+                        out = model.get_image_features(**inputs)
+                        # transformers 5.x returns BaseModelOutputWithPooling
+                        feat = out.pooler_output if hasattr(out, 'pooler_output') else out
                     else:
                         feat = model(**inputs).last_hidden_state[:, 0, :]
 
