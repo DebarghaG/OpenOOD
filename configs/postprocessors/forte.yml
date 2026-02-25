@@ -1,0 +1,8 @@
+postprocessor:
+  name: forte
+  APS_mode: False
+  postprocessor_args:
+    nearest_k: 5
+    seed: 0
+    batch_size_extract: 64
+  postprocessor_sweep: {}
